@@ -52,6 +52,7 @@ const useActiveFeatureLayer = ({
   } = useMapProperties();
 
   const { isSelecting, setState } = useContext(MapStateContext);
+
   // add geojson layer to the map
   if (!!mapRef.current && !activeFeatureLayer) {
     setActiveFeatureLayer(geoJSON().addTo(mapRef.current));

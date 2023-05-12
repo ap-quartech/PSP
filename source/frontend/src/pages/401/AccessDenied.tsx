@@ -1,10 +1,14 @@
-import * as React from 'react';
+import { useMapStateMachine } from 'components/maps/providers/MapStateMachineContext';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import { Link } from 'react-router-dom';
 
 const AccessDenied = () => {
+  // TODO: PSP-5606 WIP
+  const { service } = useMapStateMachine();
+  service.send('LOGIN_ERROR');
+
   return (
     <Container fluid={true}>
       <Row>

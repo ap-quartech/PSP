@@ -1,4 +1,5 @@
 import { Button } from 'components/common/buttons';
+import { useMapStateMachine } from 'components/maps/providers/MapStateMachineContext';
 import * as actionTypes from 'constants/actionTypes';
 import { Roles } from 'constants/roles';
 import { useQuery } from 'hooks/use-query';
@@ -25,6 +26,10 @@ const Login = () => {
   const activated = useAppSelector(state => state.network[actionTypes.ADD_ACTIVATE_USER]);
   const tenant = useTenant();
 
+  // TODO: PSP-5606 WIP
+  const { service } = useMapStateMachine();
+  service.send('LOGIN');
+
   if (!keycloak) {
     return <Spinner animation="border"></Spinner>;
   }
@@ -32,14 +37,18 @@ const Login = () => {
     if (activated?.status === 201 || !keyCloakWrapper?.obj?.userInfo?.client_roles?.length) {
       return <Redirect to={{ pathname: '/access/request' }} />;
     } else if (typeof redirect === 'string' && redirect.length) {
+      service.send('LOGIN_SUCCESS');
       return <Redirect to={redirect} />;
     } else if (keyCloakWrapper.roles?.length === 1 && keyCloakWrapper.hasRole(Roles.FINANCE)) {
+      service.send('LOGIN_SUCCESS');
       return <Redirect to="/lease/list" />;
     } else {
+      service.send('LOGIN_SUCCESS');
       return <Redirect to={'/mapview'} />;
     }
   }
   if (isIE) {
+    service.send('LOGIN_ERROR');
     return <Redirect to={{ pathname: '/ienotsupported' }} />;
   }
 
@@ -53,7 +62,12 @@ const Login = () => {
             <h1>{tenant.login.title}</h1>
             <h6>{tenant.login.heading}</h6>
             <p>{tenant.login.body}</p>
-            <Button variant="primary" onClick={() => keycloak.login({ idpHint: 'idir' })}>
+            <Button
+              variant="primary"
+              onClick={() => {
+                keycloak.login({ idpHint: 'idir' });
+              }}
+            >
               Sign In
             </Button>
             <p>Sign into PIMS with your government issued IDIR</p>
